@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en, mk">
+<head>
+    <meta charset="UTF-8">
+    <title>Vezba</title>
+    <style>
+
+    </style>
+</head>
+<body>
+
+
+
+
+<canvas id="gameCanvas"></canvas>
+<div>
+    <button id="upButton">Up</button>
+    <button id="downButton">Down</button>
+    <button id="shootButton">Shoot</button>
+</div>
+<script type="text/javascript">
+
+    // Get canvas and context
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Canvas dimensions
+    const canvasWidth = 850;
+    const canvasHeight = 400;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    // Airplane properties
+    const airplane = {
+        x: 50,
+        y: canvasHeight / 2 - 25,
+        width: 50,
+        height: 50,
+        color: "blue",
+        moveUp() {
+            this.y = Math.max(0, this.y - 10);
+        },
+        moveDown() {
+            this.y = Math.min(canvasHeight - this.height, this.y + 10);
+        },
+    };
+
+    // Alien properties
+    const alien = {
+        x: Math.random() * (canvasWidth - 100) + 300, // Random position in the right half
+        y: Math.random() * (canvasHeight - 50),
+        width: 50,
+        height: 50,
+        color: "green",
+        reset() {
+            this.x = Math.random() * (canvasWidth - 100) + 300;
+            this.y = Math.random() * (canvasHeight - 50);
+        },
+    };
+
+    // Laser properties
+    let laser = {
+        x: null,
+        y: null,
+        width: 5,
+        height: 20,
+        color: "red",
+        isActive: false,
+    };
+
+    // Function to draw airplane
+    function drawAirplane() {
+        ctx.fillStyle = airplane.color;
+        ctx.fillRect(airplane.x, airplane.y, airplane.width, airplane.height);
+    }
+
+    // Function to draw alien
+    function drawAlien() {
+        ctx.fillStyle = alien.color;
+        ctx.fillRect(alien.x, alien.y, alien.width, alien.height);
+    }
+
+    // Function to draw laser
+    function drawLaser() {
+        if (laser.isActive) {
+            ctx.fillStyle = laser.color;
+            ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
+            laser.x += 10; // Move laser to the right
+
+            // Check collision with alien
+            if (
+                laser.x + laser.width >= alien.x &&
+                laser.y >= alien.y &&
+                laser.y <= alien.y + alien.height
+            ) {
+                alien.reset(); // Reset alien
+                laser.isActive = false; // Deactivate laser
+            }
+
+            // Deactivate laser if it goes off screen
+            if (laser.x > canvasWidth) {
+                laser.isActive = false;
+            }
+        }
+    }
+
+    // Function to clear canvas
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    }
+
+    // Main game loop
+    function gameLoop() {
+        clearCanvas();
+        drawAirplane();
+        drawAlien();
+        drawLaser();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // Event listeners for controls
+    document.getElementById("upButton").addEventListener("click", () => {
+        airplane.moveUp();
+    });
+
+    document.getElementById("downButton").addEventListener("click", () => {
+        airplane.moveDown();
+    });
+
+    document.getElementById("shootButton").addEventListener("click", () => {
+        if (!laser.isActive) {
+            laser.x = airplane.x + airplane.width;
+            laser.y = airplane.y + airplane.height / 2 - laser.height / 2;
+            laser.isActive = true;
+        }
+    });
+
+
+
+
+
+    // Start the game loop
+    gameLoop();
+
+
+
+</script>
+
+</body>
+</html>
